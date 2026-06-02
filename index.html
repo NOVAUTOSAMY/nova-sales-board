@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Auto — Sales Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --bg3: #181818;
+  --bg4: #202020;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0ede8;
+  --text2: #8a8680;
+  --text3: #555250;
+  --accent: #c9a96e;
+  --accent2: #e8c99a;
+  --accent-dim: rgba(201,169,110,0.12);
+  --accent-border: rgba(201,169,110,0.3);
+  --green: #4caf7d;
+  --green-bg: rgba(76,175,125,0.1);
+  --green-border: rgba(76,175,125,0.25);
+  --red: #e05c5c;
+  --red-bg: rgba(224,92,92,0.1);
+  --red-border: rgba(224,92,92,0.25);
+  --blue: #6b9fd4;
+  --blue-bg: rgba(107,159,212,0.1);
+  --blue-border: rgba(107,159,212,0.25);
+  --amber: #e0a84a;
+  --amber-bg: rgba(224,168,74,0.1);
+  --amber-border: rgba(224,168,74,0.25);
+  --purple: #9b82d4;
+  --purple-bg: rgba(155,130,212,0.1);
+  --purple-border: rgba(155,130,212,0.25);
+  --radius: 8px;
+  --radius-lg: 12px;
+  font-family: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-size: 14px; }
+body { min-height: 100vh; }
+
+/* Layout */
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 24px 0; display: flex; flex-direction: column; }
+.main { padding: 28px 32px; overflow-x: hidden; }
+
+/* Sidebar */
+.logo { padding: 0 20px 28px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.logo-mark { font-size: 15px; font-weight: 600; color: var(--accent); letter-spacing: 0.08em; }
+.logo-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-top: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; border-left: 2px solid transparent; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+.nav-item i { font-size: 16px; }
+.nav-section { font-size: 10px; letter-spacing: 0.1em; color: var(--text3); padding: 16px 20px 6px; text-transform: uppercase; }
+.sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); }
+.sidebar-footer p { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+/* Page header */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+.page-title { font-size: 22px; font-weight: 500; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+.stat { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+.stat-val { font-size: 26px; font-weight: 500; line-height: 1; }
+.stat-label { font-size: 11px; color: var(--text2); margin-top: 5px; letter-spacing: 0.02em; }
+.stat.s-gold .stat-val { color: var(--accent); }
+.stat.s-green .stat-val { color: var(--green); }
+.stat.s-red .stat-val { color: var(--red); }
+.stat.s-blue .stat-val { color: var(--blue); }
+
+/* Toolbar */
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.search-wrap { position: relative; flex: 1; min-width: 140px; }
+.search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; pointer-events: none; }
+input[type=text], input[type=number], select, textarea {
+  background: var(--bg2); border: 1px solid var(--border2); color: var(--text);
+  border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  outline: none; transition: border-color 0.15s;
+}
+input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus { border-color: var(--accent); }
+.search-wrap input { width: 100%; height: 34px; padding: 0 10px 0 32px; }
+select { height: 34px; padding: 0 10px; cursor: pointer; }
+input[type=number] { height: 34px; padding: 0 10px; width: 100%; }
+textarea { width: 100%; padding: 8px 10px; resize: vertical; line-height: 1.5; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; border: 1px solid var(--border2); background: transparent; color: var(--text2); }
+.btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+.btn:active { transform: scale(0.98); }
+.btn i { font-size: 15px; }
+.btn-gold { background: var(--accent); color: #0a0a0a; border-color: transparent; font-weight: 600; }
+.btn-gold:hover { background: var(--accent2); color: #0a0a0a; }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+thead { background: var(--bg2); }
+th { font-size: 11px; font-weight: 500; color: var(--text3); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { background: var(--bg); transition: background 0.1s; }
+tbody tr:hover { background: var(--bg3); }
+.empty-row td { text-align: center; color: var(--text3); font-style: italic; padding: 32px; }
+
+/* Badges */
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.b-warm { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.b-cold { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.b-reeng { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.b-new { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border2); }
+.b-contacted { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.b-working { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.b-hot { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.b-closed { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.b-dead { background: rgba(255,255,255,0.03); color: var(--text3); border: 1px solid var(--border); }
+
+/* Touch cells */
+.touch-cell { display: flex; gap: 4px; align-items: center; }
+.tch { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; cursor: pointer; border: 1px solid var(--border2); background: var(--bg3); color: var(--text3); transition: all 0.12s; font-family: 'DM Mono', monospace; }
+.tch:hover { border-color: var(--accent-border); color: var(--accent); }
+.tch.done { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+
+/* Delete btn */
+.del-btn { background: transparent; border: none; cursor: pointer; color: var(--text3); font-size: 15px; padding: 3px 5px; border-radius: 4px; transition: all 0.12s; }
+.del-btn:hover { color: var(--red); background: var(--red-bg); }
+
+/* Panels */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Import */
+.import-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.import-card h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+.import-card p { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.6; }
+.import-card textarea { height: 90px; font-family: 'DM Mono', monospace; font-size: 11px; background: var(--bg); }
+.import-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.feedback { font-size: 12px; margin-top: 8px; min-height: 16px; color: var(--green); }
+.feedback.err { color: var(--red); }
+.preview-wrap { overflow-x: auto; margin-top: 12px; }
+.preview-wrap table { border: 1px solid var(--border); border-radius: var(--radius); }
+.preview-wrap th { background: var(--bg3); }
+.preview-wrap td { background: var(--bg2); font-size: 12px; padding: 7px 10px; }
+
+/* Briefing */
+.flag { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: var(--radius); margin-bottom: 8px; font-size: 12px; line-height: 1.5; }
+.flag.hot { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); }
+.flag.stale { background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber); }
+.flag i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.briefing-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+.briefing-card h4 { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+.priority-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.priority-row:last-child { border-bottom: none; }
+.priority-num { color: var(--text3); width: 20px; font-size: 11px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+
+/* Scorecard */
+.score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 12px; }
+.score-label { width: 100px; color: var(--text2); flex-shrink: 0; }
+.bar-wrap { flex: 1; height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+.bar { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.score-num { width: 60px; text-align: right; color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 24px; width: 100%; max-width: 460px; }
+.modal h3 { font-size: 15px; font-weight: 500; margin-bottom: 16px; }
+.form-row { margin-bottom: 12px; }
+.form-row label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 5px; letter-spacing: 0.04em; text-transform: uppercase; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">NOVA AUTO</div>
+      <div class="logo-sub">Al-Najar Holdings LLC</div>
+    </div>
+    <div class="nav-section">Pipeline</div>
+    <div class="nav-item active" onclick="switchTab('import')"><i class="ti ti-download"></i> Cowork Import</div>
+    <div class="nav-item" onclick="switchTab('nova')"><i class="ti ti-star"></i> Nova Pipeline</div>
+    <div class="nav-item" onclick="switchTab('mbbh')"><i class="ti ti-building"></i> MBBH Leads</div>
+    <div class="nav-section">Daily</div>
+    <div class="nav-item" onclick="switchTab('briefing')"><i class="ti ti-bolt"></i> Daily Briefing</div>
+    <div class="nav-item" onclick="switchTab('scorecard')"><i class="ti ti-chart-bar"></i> Scorecard</div>
+    <div class="sidebar-footer">
+      <p>Built for Samy Al-Najar<br>Nova Auto · MBBH · Beverly Hills</p>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- IMPORT -->
+    <div id="panel-import" class="panel active">
+      <div class="page-header">
+        <div><div class="page-title">Cowork Import</div><div class="page-sub">Paste from Cowork or your CRM — smart parser handles any format</div></div>
+      </div>
+      <div class="import-card">
+        <h3>Nova Auto leads</h3>
+        <p>Paste your Nova CRM lead list or Cowork's captured output. Works with any format — pipe, comma, tab, or plain sentences. One lead per line.</p>
+        <textarea id="nova-paste" placeholder="Examples that all work:
+John Smith | (310) 555-0100 | GLE 63S | warm | hot
+Jane Doe, 3105550200, C300, cold, working
+Mike Johnson - 310-555-0300 - re-engagement - S580
+Or just: Tom Brown 3105550400 interested in GLS"></textarea>
+        <div class="import-row">
+          <select id="nova-default-type">
+            <option value="warm">Default: Warm</option>
+            <option value="cold">Default: Cold</option>
+            <option value="re-engagement">Default: Re-engagement</option>
+          </select>
+          <button class="btn btn-gold btn-sm" onclick="previewImport('nova')"><i class="ti ti-eye"></i> Preview</button>
+          <button class="btn btn-sm" id="nova-commit-btn" onclick="commitImport('nova')" style="display:none"><i class="ti ti-check"></i> Import all</button>
+          <button class="btn btn-sm" id="nova-clear-btn" onclick="clearImport('nova')" style="display:none">Clear</button>
+        </div>
+        <div class="feedback" id="nova-feedback"></div>
+        <div class="preview-wrap" id="nova-preview"></div>
+      </div>
+      <div class="import-card">
+        <h3>MBBH assigned leads</h3>
+        <p>Screenshot your Salesforce lead list, copy the visible text, paste below. Or paste directly from Cowork's morning capture. All leads default to "New" stage unless detected.</p>
+        <textarea id="mbbh-paste" placeholder="Examples:
+Sarah Kim | (818) 555-0101 | GLC 300 | new
+David Lee 8185550102 E350 contacted
+New lead assigned: Carlos Ruiz, (213) 555-0103, GLS 580"></textarea>
+        <div class="import-row">
+          <button class="btn btn-gold btn-sm" onclick="previewImport('mbbh')"><i class="ti ti-eye"></i> Preview</button>
+          <button class="btn btn-sm" id="mbbh-commit-btn" onclick="commitImport('mbbh')" style="display:none"><i class="ti ti-check"></i> Import all</button>
+          <button class="btn btn-sm" id="mbbh-clear-btn" onclick="clearImport('mbbh')" style="display:none">Clear</button>
+        </div>
+        <div class="feedback" id="mbbh-feedback"></div>
+        <div class="preview-wrap" id="mbbh-preview"></div>
+      </div>
+    </div>
+
+    <!-- NOVA -->
+    <div id="panel-nova" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Nova Pipeline</div><div class="page-sub">Warm leads · Cold prospects · Re-engagement</div></div>
+        <div class="header-actions">
+          <button class="btn btn-gold" onclick="openModal('nova')"><i class="ti ti-plus"></i> Add lead</button>
+        </div>
+      </div>
+      <div class="stats" id="nova-stats"></div>
+      <div class="toolbar">
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="nova-search" placeholder="Search leads..." oninput="renderNova()"></div>
+        <select id="nova-type-filter" onchange="renderNova()">
+          <option value="">All types</option>
+          <option value="warm">Warm</option>
+          <option value="cold">Cold</option>
+          <option value="re-engagement">Re-engagement</option>
+        </select>
+        <select id="nova-stage-filter" onchange="renderNova()">
+          <option value="">All stages</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="working">Working</option>
+          <option value="hot">Hot</option>
+          <option value="closed">Closed</option>
+          <option value="dead">Dead</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:140px">Name</th>
+            <th style="width:80px">Type</th>
+            <th style="width:80px">Stage</th>
+            <th style="width:130px">Vehicle</th>
+            <th style="width:95px">Touches</th>
+            <th style="width:100px">Last contact</th>
+            <th style="width:110px">Notes</th>
+            <th style="width:36px"></th>
+          </tr></thead>
+          <tbody id="nova-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MBBH -->
+    <div id="panel-mbbh" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">MBBH Leads</div><div class="page-sub">Mercedes-Benz of Beverly Hills · Assigned leads</div></div>
+        <div class="header-actions">
+          <button class="btn btn-gold" onclick="openModal('mbbh')"><i class="ti ti-plus"></i> Add lead</button>
+        </div>
+      </div>
+      <div class="stats" id="mbbh-stats"></div>
+      <div class="toolbar">
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="mbbh-search" placeholder="Search leads..." oninput="renderMbbh()"></div>
+        <select id="mbbh-stage-filter" onchange="renderMbbh()">
+          <option value="">All stages</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="working">Working</option>
+          <option value="hot">Hot</option>
+          <option value="closed">Closed</option>
+          <option value="dead">Dead</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:140px">Name</th>
+            <th style="width:110px">Phone</th>
+            <th style="width:80px">Stage</th>
+            <th style="width:130px">Vehicle</th>
+            <th style="width:95px">Touches</th>
+            <th style="width:100px">Last contact</th>
+            <th style="width:80px">Notes</th>
+            <th style="width:36px"></th>
+          </tr></thead>
+          <tbody id="mbbh-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BRIEFING -->
+    <div id="panel-briefing" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Daily Briefing</div><div class="page-sub">Auto-generated from your live pipeline</div></div>
+        <button class="btn btn-gold" onclick="renderBriefing()"><i class="ti ti-refresh"></i> Refresh</button>
+      </div>
+      <div id="briefing-flags"></div>
+      <div class="briefing-card">
+        <h4>Priority call list today</h4>
+        <div id="briefing-calls"></div>
+      </div>
+      <div class="briefing-card">
+        <h4>Stale leads — 3+ days no contact</h4>
+        <div id="briefing-stale"></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-gold" onclick="copyBriefingForClaude()"><i class="ti ti-copy"></i> Copy briefing for Claude</button>
+        <span id="copy-feedback" style="font-size:12px;color:var(--green);margin-left:10px;opacity:0;transition:opacity 0.3s"></span>
+      </div>
+    </div>
+
+    <!-- SCORECARD -->
+    <div id="panel-scorecard" class="panel">
+      <div class="page-header">
+        <div><div class="page-title">Weekly Scorecard</div><div class="page-sub">Track outreach activity and deal velocity</div></div>
+        <button class="btn" onclick="resetTouches()"><i class="ti ti-refresh"></i> Reset today's touches</button>
+      </div>
+      <div class="stats" id="score-stats"></div>
+      <div class="briefing-card">
+        <h4>Outreach progress this week</h4>
+        <div id="score-bars"></div>
+      </div>
+      <div class="briefing-card">
+        <h4>Log activity</h4>
+        <div class="score-grid">
+          <div class="form-row"><label>Calls made</label><input type="number" id="sc-calls" min="0" value="0" oninput="updateScore()"></div>
+          <div class="form-row"><label>Texts sent</label><input type="number" id="sc-texts" min="0" value="0" oninput="updateScore()"></div>
+          <div class="form-row"><label>Emails sent</label><input type="number" id="sc-emails" min="0" value="0" oninput="updateScore()"></div>
+          <div class="form-row"><label>Appointments set</label><input type="number" id="sc-appts" min="0" value="0" oninput="updateScore()"></div>
+          <div class="form-row"><label>Nova deals closed</label><input type="number" id="sc-nclosed" min="0" value="0" oninput="updateScore()"></div>
+          <div class="form-row"><label>MBBH units sold</label><input type="number" id="sc-mclosed" min="0" value="0" oninput="updateScore()"></div>
+        </div>
+        <button class="btn btn-gold" onclick="copyScoreForClaude()"><i class="ti ti-copy"></i> Copy scorecard for Claude review</button>
+        <span id="score-copy-feedback" style="font-size:12px;color:var(--green);margin-left:10px;opacity:0;transition:opacity 0.3s"></span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Add lead</h3>
+    <div class="form-grid">
+      <div class="form-row"><label>First name</label><input type="text" id="f-first" placeholder="First"></div>
+      <div class="form-row"><label>Last name</label><input type="text" id="f-last" placeholder="Last"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row"><label>Phone</label><input type="text" id="f-phone" placeholder="(310) 555-0000"></div>
+      <div class="form-row"><label>Email</label><input type="text" id="f-email" placeholder="email@gmail.com"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-row" id="f-type-row"><label>Lead type</label>
+        <select id="f-type"><option value="warm">Warm</option><option value="cold">Cold</option><option value="re-engagement">Re-engagement</option></select>
+      </div>
+      <div class="form-row"><label>Stage</label>
+        <select id="f-stage"><option value="new">New</option><option value="contacted">Contacted</option><option value="working">Working</option><option value="hot">Hot</option><option value="closed">Closed</option><option value="dead">Dead</option></select>
+      </div>
+    </div>
+    <div class="form-row"><label>Vehicle interest</label><input type="text" id="f-vehicle" placeholder="e.g. GLE 63S, S580, C300"></div>
+    <div class="form-row"><label>Notes</label><textarea id="f-notes" placeholder="Budget, timeline, source, referral name..."></textarea></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLead()">Save lead</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let modalTarget='nova', editId=null, pendingImport={nova:[],mbbh:[]};
+function load(k,d){try{return JSON.parse(localStorage.getItem(k)||'null')||d}catch(e){return d}}
+let novaLeads=load('nova_v3',[]), mbbhLeads=load('mbbh_v3',[]), scoreData=load('score_v3',{calls:0,texts:0,emails:0,appts:0,nclosed:0,mclosed:0});
+function save(){try{localStorage.setItem('nova_v3',JSON.stringify(novaLeads));localStorage.setItem('mbbh_v3',JSON.stringify(mbbhLeads));localStorage.setItem('score_v3',JSON.stringify(scoreData));}catch(e){}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function switchTab(t){
+  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  const navMap={import:0,nova:1,mbbh:2,briefing:3,scorecard:4};
+  document.querySelectorAll('.nav-item')[navMap[t]]?.classList.add('active');
+  closeModal();
+  if(t==='nova')renderNova();
+  else if(t==='mbbh')renderMbbh();
+  else if(t==='briefing')renderBriefing();
+  else if(t==='scorecard')renderScore();
+}
+
+const mbModels=['a class','c class','c300','c43','c63','c350','e class','e350','e450','e53','e63','s class','s450','s500','s580','s63','g class','g500','g550','g63','gle','gle300','gle350','gle450','gle53','gle63','gls','gls450','gls480','gls580','glc','glc300','glc43','glc63','amg gt','sl','cla','cls','eqb','eqe','eqs','maybach','sprinter'];
+const typeKw={warm:['warm','referral','past','buyer','repeat'],cold:['cold','instagram','ig','new','inbound','online'],re:['re-engage','reengagement','re-engagement','dormant','quiet','old','inactive']};
+const stageKw={new:['new','fresh','just in'],contacted:['contacted','called','reached','left vm','voicemail'],working:['working','active','talking','in progress'],hot:['hot','urgent','ready','this week','wants to buy','serious'],closed:['closed','sold','won','delivered'],dead:['dead','lost','no contact','ghost','unresponsive']};
+
+function parsePaste(raw,source){
+  const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  const leads=[];
+  const phoneRe=/(\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4})/;
+  for(let line of lines){
+    if(/^(name|lead|first|#|--)/i.test(line))continue;
+    const parts=line.split(/[|,\t]+/).map(s=>s.trim()).filter(Boolean);
+    let first='',last='',phone='',vehicle='',type='warm',stage='new',notes='';
+    const pm=line.match(phoneRe);
+    if(pm)phone=pm[1];
+    for(let p of parts){
+      const pl=p.toLowerCase().trim();
+      if(phoneRe.test(p))continue;
+      const fm=mbModels.find(m=>pl.includes(m));
+      if(fm&&!vehicle){vehicle=p.trim();continue;}
+      const ft=Object.entries(typeKw).find(([k,v])=>v.some(w=>pl.includes(w)));
+      if(ft){type=ft[0]==='re'?'re-engagement':ft[0];continue;}
+      const fs=Object.entries(stageKw).find(([k,v])=>v.some(w=>pl.includes(w)));
+      if(fs){stage=fs[0];continue;}
+      if(!first&&p.length>1&&!/^\d/.test(p)&&!p.includes('@')&&p.length<40){
+        const w=p.split(/\s+/);first=w[0]||'';last=w.slice(1).join(' ')||'';continue;
+      }
+      if(p.includes('@')){notes+=p+' ';continue;}
+    }
+    if(!vehicle){const ll=line.toLowerCase();const fm=mbModels.find(m=>ll.includes(m));if(fm)vehicle=fm.toUpperCase();}
+    if(!first)continue;
+    leads.push({id:uid(),first:first.trim(),last:last.trim(),phone,email:'',type,stage,vehicle:vehicle.trim(),notes:notes.trim(),lastContact:new Date().toISOString().slice(0,10),touches:{call:false,text:false,email:false}});
+  }
+  return leads;
+}
+
+function previewImport(src){
+  const raw=document.getElementById(src+'-paste').value;
+  if(!raw.trim()){setFb(src,'Paste something first.','err');return;}
+  let leads=parsePaste(raw,src);
+  if(src==='nova'){const dt=document.getElementById('nova-default-type').value;leads=leads.map(l=>({...l,type:l.type||dt}));}
+  pendingImport[src]=leads;
+  if(!leads.length){setFb(src,'No leads detected. Try: Name | Phone | Vehicle per line.','err');return;}
+  setFb(src,`Detected ${leads.length} lead${leads.length>1?'s':''}. Review below then click Import all.`,'');
+  document.getElementById(src+'-commit-btn').style.display='inline-flex';
+  document.getElementById(src+'-clear-btn').style.display='inline-flex';
+  const cols=src==='nova'?['Name','Type','Stage','Vehicle','Phone']:['Name','Phone','Stage','Vehicle'];
+  document.getElementById(src+'-preview').innerHTML=`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${leads.map(l=>`<tr><td>${l.first} ${l.last}</td>${src==='nova'?`<td>${l.type}</td>`:''}<td>${l.stage}</td><td>${l.vehicle||'—'}</td><td>${l.phone||'—'}</td></tr>`).join('')}</tbody></table>`;
+}
+function commitImport(src){
+  const leads=pendingImport[src];if(!leads.length)return;
+  const arr=src==='nova'?novaLeads:mbbhLeads;
+  let added=0,skipped=0;
+  for(const l of leads){
+    const dup=arr.find(x=>(x.first+x.last).toLowerCase()===(l.first+l.last).toLowerCase()||(l.phone&&x.phone===l.phone));
+    if(dup){skipped++;continue;}arr.unshift(l);added++;
+  }
+  save();clearImport(src);
+  setFb(src,`Imported ${added} lead${added!==1?'s':''}${skipped?`, skipped ${skipped} duplicate${skipped!==1?'s':''}`:''}.`,'');
+}
+function clearImport(src){
+  document.getElementById(src+'-preview').innerHTML='';
+  document.getElementById(src+'-paste').value='';
+  document.getElementById(src+'-commit-btn').style.display='none';
+  document.getElementById(src+'-clear-btn').style.display='none';
+  pendingImport[src]=[];
+}
+function setFb(src,msg,t){const el=document.getElementById(src+'-feedback');el.textContent=msg;el.className='feedback'+(t?' '+t:'');}
+
+function typeBadge(t){return{warm:'<span class="badge b-warm">Warm</span>',cold:'<span class="badge b-cold">Cold</span>','re-engagement':'<span class="badge b-reeng">Re-engage</span>'}[t]||'';}
+function stageBadge(s){return{new:'<span class="badge b-new">New</span>',contacted:'<span class="badge b-contacted">Contacted</span>',working:'<span class="badge b-working">Working</span>',hot:'<span class="badge b-hot">Hot</span>',closed:'<span class="badge b-closed">Closed</span>',dead:'<span class="badge b-dead">Dead</span>'}[s]||'';}
+function touchCell(l,src){
+  const t=l.touches||{call:false,text:false,email:false};
+  return`<div class="touch-cell"><div class="tch${t.call?' done':''}" onclick="toggleTouch('${l.id}','call','${src}')" title="Call">C</div><div class="tch${t.text?' done':''}" onclick="toggleTouch('${l.id}','text','${src}')" title="Text">T</div><div class="tch${t.email?' done':''}" onclick="toggleTouch('${l.id}','email','${src}')" title="Email">E</div></div>`;
+}
+function toggleTouch(id,type,src){
+  const arr=src==='nova'?novaLeads:mbbhLeads;
+  const l=arr.find(x=>x.id===id);if(!l)return;
+  if(!l.touches)l.touches={call:false,text:false,email:false};
+  l.touches[type]=!l.touches[type];
+  l.lastContact=new Date().toISOString().slice(0,10);
+  save();src==='nova'?renderNova():renderMbbh();
+}
+function daysSince(d){
+  if(!d)return'—';
+  const diff=Math.floor((Date.now()-new Date(d).getTime())/86400000);
+  if(diff===0)return'Today';if(diff===1)return'Yesterday';return diff+'d ago';
+}
+
+function renderNova(){
+  const s=(document.getElementById('nova-search')?.value||'').toLowerCase();
+  const tf=document.getElementById('nova-type-filter')?.value||'';
+  const sf=document.getElementById('nova-stage-filter')?.value||'';
+  const leads=novaLeads.filter(l=>{
+    const n=(l.first+' '+l.last).toLowerCase();
+    return(!s||n.includes(s)||(l.vehicle||'').toLowerCase().includes(s))&&(!tf||l.type===tf)&&(!sf||l.stage===sf);
+  });
+  const tb=document.getElementById('nova-tbody');if(!tb)return;
+  tb.innerHTML=leads.length?leads.map(l=>`<tr><td title="${l.first} ${l.last}"><strong>${l.first}</strong> ${l.last}</td><td>${typeBadge(l.type)}</td><td>${stageBadge(l.stage)}</td><td title="${l.vehicle||''}">${l.vehicle||'—'}</td><td>${touchCell(l,'nova')}</td><td style="color:var(--text2)">${daysSince(l.lastContact)}</td><td title="${l.notes||''}" style="color:var(--text3);font-size:12px">${(l.notes||'').slice(0,18)+(l.notes&&l.notes.length>18?'…':'')}</td><td><button class="del-btn" onclick="deleteLead('${l.id}','nova')" title="Remove"><i class="ti ti-trash"></i></button></td></tr>`).join(''):`<tr class="empty-row"><td colspan="8">No leads yet — use Cowork Import or add manually</td></tr>`;
+  const hot=novaLeads.filter(x=>x.stage==='hot').length;
+  const closed=novaLeads.filter(x=>x.stage==='closed').length;
+  const touched=novaLeads.filter(x=>x.touches&&x.touches.call&&x.touches.text&&x.touches.email).length;
+  document.getElementById('nova-stats').innerHTML=`<div class="stat s-gold"><div class="stat-val">${novaLeads.length}</div><div class="stat-label">Total leads</div></div><div class="stat s-red"><div class="stat-val">${hot}</div><div class="stat-label">Hot leads</div></div><div class="stat s-blue"><div class="stat-val">${closed}</div><div class="stat-label">Closed</div></div><div class="stat s-green"><div class="stat-val">${touched}</div><div class="stat-label">3x touched today</div></div>`;
+}
+
+function renderMbbh(){
+  const s=(document.getElementById('mbbh-search')?.value||'').toLowerCase();
+  const sf=document.getElementById('mbbh-stage-filter')?.value||'';
+  const leads=mbbhLeads.filter(l=>{
+    const n=(l.first+' '+l.last).toLowerCase();
+    return(!s||n.includes(s)||(l.vehicle||'').toLowerCase().includes(s))&&(!sf||l.stage===sf);
+  });
+  const tb=document.getElementById('mbbh-tbody');if(!tb)return;
+  tb.innerHTML=leads.length?leads.map(l=>`<tr><td title="${l.first} ${l.last}"><strong>${l.first}</strong> ${l.last}</td><td style="font-size:12px;color:var(--text2)">${l.phone||'—'}</td><td>${stageBadge(l.stage)}</td><td title="${l.vehicle||''}">${l.vehicle||'—'}</td><td>${touchCell(l,'mbbh')}</td><td style="color:var(--text2)">${daysSince(l.lastContact)}</td><td title="${l.notes||''}" style="color:var(--text3);font-size:12px">${(l.notes||'').slice(0,18)+(l.notes&&l.notes.length>18?'…':'')}</td><td><button class="del-btn" onclick="deleteLead('${l.id}','mbbh')" title="Remove"><i class="ti ti-trash"></i></button></td></tr>`).join(''):`<tr class="empty-row"><td colspan="8">No leads yet — use Cowork Import or add manually</td></tr>`;
+  const hot=mbbhLeads.filter(x=>x.stage==='hot').length;
+  const closed=mbbhLeads.filter(x=>x.stage==='closed').length;
+  const touched=mbbhLeads.filter(x=>x.touches&&x.touches.call&&x.touches.text&&x.touches.email).length;
+  document.getElementById('mbbh-stats').innerHTML=`<div class="stat s-gold"><div class="stat-val">${mbbhLeads.length}</div><div class="stat-label">Total leads</div></div><div class="stat s-red"><div class="stat-val">${hot}</div><div class="stat-label">Hot leads</div></div><div class="stat s-blue"><div class="stat-val">${closed}</div><div class="stat-label">Closed</div></div><div class="stat s-green"><div class="stat-val">${touched}</div><div class="stat-label">3x touched today</div></div>`;
+}
+
+function renderBriefing(){
+  const all=[...novaLeads,...mbbhLeads];
+  const hot=all.filter(l=>l.stage==='hot'&&!(l.touches&&l.touches.call&&l.touches.text&&l.touches.email));
+  const stale=all.filter(l=>{
+    if(l.stage==='closed'||l.stage==='dead')return false;
+    if(!l.lastContact)return true;
+    return Math.floor((Date.now()-new Date(l.lastContact).getTime())/86400000)>=3;
+  });
+  const untouched=all.filter(l=>l.stage!=='closed'&&l.stage!=='dead'&&!(l.touches&&l.touches.call)).sort((a,b)=>a.stage==='hot'?-1:b.stage==='hot'?1:0);
+  let flags='';
+  if(hot.length)flags+=`<div class="flag hot"><i class="ti ti-flame"></i><span><strong>${hot.length} hot lead${hot.length>1?'s':''} untouched today:</strong> ${hot.map(l=>l.first+' '+l.last).join(', ')}</span></div>`;
+  if(stale.length)flags+=`<div class="flag stale"><i class="ti ti-clock"></i><span><strong>${stale.length} stale lead${stale.length>1?'s':''} (3+ days):</strong> ${stale.slice(0,5).map(l=>l.first+' '+l.last).join(', ')}${stale.length>5?'…':''}</span></div>`;
+  document.getElementById('briefing-flags').innerHTML=flags||'<div style="font-size:13px;color:var(--green);margin-bottom:12px;padding:10px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px"><i class="ti ti-circle-check" style="vertical-align:-2px;margin-right:6px"></i>No urgent flags — pipeline looks clean.</div>';
+  const calls=untouched.slice(0,8);
+  document.getElementById('briefing-calls').innerHTML=calls.length?calls.map((l,i)=>`<div class="priority-row"><span class="priority-num">${i+1}</span><span style="flex:1;font-weight:500">${l.first} ${l.last}</span><span style="color:var(--text2);font-size:12px">${l.vehicle||'—'}</span>${stageBadge(l.stage)}<span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${daysSince(l.lastContact)}</span></div>`).join(''):'<p style="font-size:13px;color:var(--text2)">All leads called today.</p>';
+  document.getElementById('briefing-stale').innerHTML=stale.length?stale.map(l=>`<div class="priority-row"><span style="flex:1;font-weight:500">${l.first} ${l.last}</span><span style="color:var(--text2);font-size:12px">${l.vehicle||'—'}</span>${stageBadge(l.stage)}<span style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace">${daysSince(l.lastContact)}</span></div>`).join(''):'<p style="font-size:13px;color:var(--text2)">No stale leads.</p>';
+}
+
+function copyBriefingForClaude(){
+  const all=[...novaLeads,...mbbhLeads];
+  const stale=all.filter(l=>{if(l.stage==='closed'||l.stage==='dead')return false;if(!l.lastContact)return true;return Math.floor((Date.now()-new Date(l.lastContact).getTime())/86400000)>=3;});
+  const hot=all.filter(l=>l.stage==='hot');
+  const untouched=all.filter(l=>l.stage!=='closed'&&l.stage!=='dead'&&!(l.touches&&l.touches.call));
+  const txt=`NOVA AUTO SALES BOARD — DAILY BRIEFING\n${new Date().toDateString()}\n\nTotal leads: ${all.length} (Nova: ${novaLeads.length}, MBBH: ${mbbhLeads.length})\nHot leads: ${hot.length}\nStale (3+ days): ${stale.length}\nUntouched today: ${untouched.length}\n\nPRIORITY CALL LIST:\n${untouched.slice(0,8).map((l,i)=>`${i+1}. ${l.first} ${l.last} — ${l.vehicle||'no vehicle'} — ${l.stage} — last contact: ${daysSince(l.lastContact)}`).join('\n')}\n\nSTALE LEADS:\n${stale.map(l=>`${l.first} ${l.last} — ${l.stage} — ${daysSince(l.lastContact)}`).join('\n')||'None'}\n\nPlease review this briefing and tell me who to prioritize today and why.`;
+  navigator.clipboard.writeText(txt).then(()=>{const el=document.getElementById('copy-feedback');el.textContent='Copied!';el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);});
+}
+
+function copyScoreForClaude(){
+  const s=scoreData;
+  const txt=`NOVA AUTO WEEKLY SCORECARD\n${new Date().toDateString()}\n\nCalls: ${s.calls}\nTexts: ${s.texts}\nEmails: ${s.emails}\nAppointments set: ${s.appts}\nNova deals closed: ${s.nclosed}\nMBBH units sold: ${s.mclosed}\n\nPipeline: ${novaLeads.length} Nova leads, ${mbbhLeads.length} MBBH leads\nHot leads: ${[...novaLeads,...mbbhLeads].filter(x=>x.stage==='hot').length}\n\nPlease review these numbers and tell me what I should focus on next week to hit my goals.`;
+  navigator.clipboard.writeText(txt).then(()=>{const el=document.getElementById('score-copy-feedback');el.textContent='Copied!';el.style.opacity='1';setTimeout(()=>el.style.opacity='0',2000);});
+}
+
+function renderScore(){
+  const s=scoreData;
+  document.getElementById('sc-calls').value=s.calls||0;
+  document.getElementById('sc-texts').value=s.texts||0;
+  document.getElementById('sc-emails').value=s.emails||0;
+  document.getElementById('sc-appts').value=s.appts||0;
+  document.getElementById('sc-nclosed').value=s.nclosed||0;
+  document.getElementById('sc-mclosed').value=s.mclosed||0;
+  const tl=Math.max(novaLeads.length+mbbhLeads.length,1);
+  const bars=[
+    {l:'Calls',v:s.calls||0,g:tl*5,c:'#c9a96e'},
+    {l:'Texts',v:s.texts||0,g:tl*5,c:'#4caf7d'},
+    {l:'Emails',v:s.emails||0,g:tl*5,c:'#6b9fd4'},
+    {l:'Appointments',v:s.appts||0,g:10,c:'#e0a84a'},
+    {l:'Nova closed',v:s.nclosed||0,g:5,c:'#e05c5c'},
+    {l:'MBBH units',v:s.mclosed||0,g:15,c:'#9b82d4'},
+  ];
+  document.getElementById('score-bars').innerHTML=bars.map(b=>{
+    const pct=Math.min(100,Math.round((b.v/Math.max(b.g,1))*100));
+    return`<div class="score-row"><span class="score-label">${b.l}</span><div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${b.c}"></div></div><span class="score-num">${b.v}/${b.g}</span></div>`;
+  }).join('');
+  const tt=[...novaLeads,...mbbhLeads].filter(x=>x.touches&&x.touches.call&&x.touches.text&&x.touches.email).length;
+  document.getElementById('score-stats').innerHTML=`<div class="stat s-gold"><div class="stat-val">${novaLeads.length+mbbhLeads.length}</div><div class="stat-label">Total leads</div></div><div class="stat s-green"><div class="stat-val">${tt}</div><div class="stat-label">3x touched today</div></div><div class="stat s-blue"><div class="stat-val">${(s.nclosed||0)+(s.mclosed||0)}</div><div class="stat-label">Deals closed</div></div><div class="stat s-red"><div class="stat-val">${s.appts||0}</div><div class="stat-label">Appts set</div></div>`;
+}
+
+function updateScore(){
+  scoreData.calls=parseInt(document.getElementById('sc-calls').value)||0;
+  scoreData.texts=parseInt(document.getElementById('sc-texts').value)||0;
+  scoreData.emails=parseInt(document.getElementById('sc-emails').value)||0;
+  scoreData.appts=parseInt(document.getElementById('sc-appts').value)||0;
+  scoreData.nclosed=parseInt(document.getElementById('sc-nclosed').value)||0;
+  scoreData.mclosed=parseInt(document.getElementById('sc-mclosed').value)||0;
+  save();renderScore();
+}
+
+function resetTouches(){
+  if(!confirm('Reset all C/T/E touch indicators? This clears today\'s checkmarks only — no lead data is deleted.'))return;
+  [...novaLeads,...mbbhLeads].forEach(l=>l.touches={call:false,text:false,email:false});
+  save();renderNova();renderMbbh();alert('Touches reset. Ready for a new day.');
+}
+
+function openModal(target){
+  modalTarget=target;editId=null;
+  document.getElementById('f-type-row').style.display=target==='nova'?'block':'none';
+  document.getElementById('modal-title').textContent='Add lead';
+  ['f-first','f-last','f-phone','f-email','f-vehicle','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-type').value='warm';
+  document.getElementById('f-stage').value='new';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function saveLead(){
+  const first=document.getElementById('f-first').value.trim();
+  if(!first){alert('First name is required.');return;}
+  const lead={id:uid(),first,last:document.getElementById('f-last').value.trim(),phone:document.getElementById('f-phone').value.trim(),email:document.getElementById('f-email').value.trim(),type:document.getElementById('f-type').value,stage:document.getElementById('f-stage').value,vehicle:document.getElementById('f-vehicle').value.trim(),notes:document.getElementById('f-notes').value.trim(),lastContact:new Date().toISOString().slice(0,10),touches:{call:false,text:false,email:false}};
+  const arr=modalTarget==='nova'?novaLeads:mbbhLeads;
+  arr.unshift(lead);save();closeModal();
+  modalTarget==='nova'?renderNova():renderMbbh();
+}
+function deleteLead(id,src){
+  if(!confirm('Remove this lead?'))return;
+  if(src==='nova')novaLeads=novaLeads.filter(x=>x.id!==id);
+  else mbbhLeads=mbbhLeads.filter(x=>x.id!==id);
+  save();src==='nova'?renderNova():renderMbbh();
+}
+
+renderNova();
+</script>
+</body>
+</html>
